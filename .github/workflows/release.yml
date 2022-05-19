@@ -1,6 +1,9 @@
 name: Release
 
-on: [push]
+on:
+  push:
+    tags:
+      - '*'
 
 jobs:
   create_release:
@@ -18,3 +21,24 @@ jobs:
 
     - name: Create XCFramework
       run: mint run unsignedapps/swift-create-xcframework@v2 --platform ios --zip
+
+    - name: Create release
+      uses: actions/create-release@v1
+      with:
+        draft: false
+        prerelease: false
+        release_name: ${{ steps.version.outputs.version }}
+        tag_name: ${{ github.ref }}
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+
+    - name: Upload XCFramework
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./fishhook/fishhook.zip
+        asset_name: fishhook.zip
+        asset_content_type: application/zip
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+        
