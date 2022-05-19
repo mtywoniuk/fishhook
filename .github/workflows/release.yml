@@ -1,0 +1,41 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  create_release:
+    name: Create Release
+    runs-on: macos-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Use Xcode 13.2.1
+      run: sudo xcode-select -s /Applications/Xcode_13.2.1.app
+
+    - name: Install Dependencies
+      run: brew install mint
+
+    - name: Create XCFramework
+      run: mint run unsignedapps/swift-create-xcframework@v2 --platform ios --zip
+
+    - name: Create release
+      uses: actions/create-release@v1
+      with:
+        draft: false
+        prerelease: false
+        release_name: ${{ steps.version.outputs.version }}
+        tag_name: ${{ github.ref }}
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+
+    - name: Upload XCFramework
+      uses: softprops/action-gh-release@v1
+      with:
+        files: fishhook.zip
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+        

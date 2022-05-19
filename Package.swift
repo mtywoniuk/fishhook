@@ -7,7 +7,6 @@ let package = Package(
     products: [
         .library(
             name: "fishhook",
-            type: .dynamic,
             targets: ["fishhook"]),
     ],
     targets: [
